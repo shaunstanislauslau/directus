@@ -321,15 +321,15 @@ export function applyFilter(
 
 	function subQueryBuilderSingle(relation: Relation, value: any) {
 		return function (subQueryKnex: Knex.QueryBuilder<any, any>) {
-			const field = relation!.field;
 			const collection = relation!.collection;
+			const field = relation!.field;
 			const column = `${collection}.${field}`;
 
-			subQueryKnex.from(collection).whereRaw(`${field} = ${column}`);
+			subQueryKnex.from(collection).whereRaw(`?? = ??`, [field, column]);
 
 			applyQuery(
 				knex,
-				relation!.collection,
+				collection,
 				subQueryKnex,
 				{
 					filter: value,
