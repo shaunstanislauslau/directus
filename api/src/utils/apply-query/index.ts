@@ -319,7 +319,7 @@ export function applyFilter(
 		}
 	}
 
-	function subQueryBuilderSingle(parentField: string, relation: Relation, value: any) {
+	function subQueryBuilder(parentField: string, relation: Relation, value: any) {
 		return function (subQueryKnex: Knex.QueryBuilder<any, any>) {
 			const collection = relation!.collection;
 			const column = `${collection}.${relation!.field}`;
@@ -336,22 +336,6 @@ export function applyFilter(
 				schema,
 				true
 			);
-		};
-	}
-
-	function subQueryBuilderMultiple(relation: Relation, filter: Filter) {
-		return (subQueryKnex: Knex.QueryBuilder<any, unknown[]>) => {
-			const field = relation!.field;
-			const collection = relation!.collection;
-			const column = `${collection}.${field}`;
-
-			// specifically used for o2m, m2m subqueries
-			subQueryKnex
-				.select({ [field]: column })
-				.from(collection)
-				.whereNotNull(column);
-
-			applyQuery(knex, relation!.collection, subQueryKnex, { filter }, schema, true);
 		};
 	}
 
@@ -428,14 +412,14 @@ export function applyFilter(
 				}
 
 				if (filterOperator === '_none') {
-					dbQuery[logical].whereNotIn(pkField as string, subQueryBuilderMultiple(relation, filterValue as Filter));
+					dbQuery[logical].whereNotExists(subQueryBuilder(pkField as string, relation, filterValue as Filter));
 				} else if (filterOperator === '_some') {
-					dbQuery[logical].whereIn(pkField as string, subQueryBuilderMultiple(relation, filterValue as Filter));
+					dbQuery[logical].whereExists(subQueryBuilder(pkField as string, relation, filterValue as Filter));
 				} else if (isNegativeOperator(filterOperator)) {
 					inverseFilters(value);
-					dbQuery[logical].whereNotExists(subQueryBuilderSingle(pkField as string, relation, value));
+					dbQuery[logical].whereNotExists(subQueryBuilder(pkField as string, relation, value));
 				} else {
-					dbQuery[logical].whereExists(subQueryBuilderSingle(pkField as string, relation, value));
+					dbQuery[logical].whereExists(subQueryBuilder(pkField as string, relation, value));
 				}
 			}
 		}
