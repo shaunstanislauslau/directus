@@ -319,13 +319,12 @@ export function applyFilter(
 		}
 	}
 
-	function subQueryBuilderSingle(relation: Relation, value: any) {
+	function subQueryBuilderSingle(parentField: string, relation: Relation, value: any) {
 		return function (subQueryKnex: Knex.QueryBuilder<any, any>) {
 			const collection = relation!.collection;
-			const field = relation!.field;
-			const column = `${collection}.${field}`;
+			const column = `${collection}.${relation!.field}`;
 
-			subQueryKnex.from(collection).whereRaw(`?? = ??`, [field, column]);
+			subQueryKnex.from(collection).whereRaw(`?? = ??`, [parentField, column]);
 
 			applyQuery(
 				knex,
@@ -434,9 +433,9 @@ export function applyFilter(
 					dbQuery[logical].whereIn(pkField as string, subQueryBuilderMultiple(relation, filterValue as Filter));
 				} else if (isNegativeOperator(filterOperator)) {
 					inverseFilters(value);
-					dbQuery[logical].whereNotExists(subQueryBuilderSingle(relation, value));
+					dbQuery[logical].whereNotExists(subQueryBuilderSingle(pkField as string, relation, value));
 				} else {
-					dbQuery[logical].whereExists(subQueryBuilderSingle(relation, value));
+					dbQuery[logical].whereExists(subQueryBuilderSingle(pkField as string, relation, value));
 				}
 			}
 		}
@@ -484,6 +483,7 @@ export function applyFilter(
 				compareValue = compareValue.filter((val) => val !== undefined);
 			}
 
+			// console.log(operator, selectionRaw, compareValue);
 			if (operator in operators) {
 				operators[operator].apply({
 					query: dbQuery[logical],
