@@ -358,16 +358,18 @@ export function applyFilter(
 
 	function inverseFilters(value: any) {
 		for (const field in value) {
-			for (const operator in value[field]) {
-				let inverseOperator = operator;
-				if (isNegativeOperator(operator)) {
-					inverseOperator = '_' + operator.substring(2);
-				} else {
-					inverseOperator = '_n' + operator.substring(1);
-				}
-				value[field][inverseOperator] = value[field][operator];
-				delete value[field][operator];
+			if (typeof value[field] === 'object') {
+				inverseFilters(value[field]);
+				continue;
 			}
+			let inverseOperator = field;
+			if (isNegativeOperator(field)) {
+				inverseOperator = '_' + field.substring(2);
+			} else {
+				inverseOperator = '_n' + field.substring(1);
+			}
+			value[inverseOperator] = value[field];
+			delete value[field];
 		}
 	}
 
