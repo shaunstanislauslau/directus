@@ -136,10 +136,9 @@ export default defineComponent({
 		});
 
 		const groupOpen = computed(() => {
-			if (props.showSelectionOnly === true) {
-				return visibleChildrenValues.value.length > 0;
-			}
-
+			// if (props.showSelectionOnly === true) {
+			// 	return visibleChildrenValues.value.length > 0;
+			// }
 			return false;
 		});
 
