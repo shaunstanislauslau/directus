@@ -94,12 +94,12 @@ export default defineComponent({
 	},
 	emits: ['click'],
 	setup(props, { emit }) {
-		const initialActive = toRef(props, 'open');
+		// const initialActive = toRef(props, 'open');
 		const { active: groupActive, toggle } = useGroupable({
 			group: props.scope,
 			value: props.value,
-			active: initialActive,
-			watch: true,
+			// active: initialActive,
+			// watch: true,
 		});
 
 		return { groupActive, toggle, onClick };
