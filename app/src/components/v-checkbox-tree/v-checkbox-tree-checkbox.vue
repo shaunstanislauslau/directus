@@ -2,8 +2,8 @@
 	<v-list-group
 		v-if="visibleChildrenValues.length > 0"
 		v-show="groupShown"
+		:open="showSelectionOnly"
 		:value="value"
-		:open="groupOpen"
 		arrow-placement="before"
 	>
 		<template #activator>
@@ -134,18 +134,11 @@ export default defineComponent({
 		);
 
 		const groupShown = computed(() => {
-			if (props.showSelectionOnly === true && props.modelValue.includes(props.value)) {
+			if (props.showSelectionOnly && props.modelValue.includes(props.value)) {
 				return true;
 			}
 
 			return !props.hidden;
-		});
-
-		const groupOpen = computed(() => {
-			// if (props.showSelectionOnly === true) {
-			// 	return visibleChildrenValues.value.length > 0;
-			// }
-			return false;
 		});
 
 		const childrenValues = computed(() => props.children?.map((child) => child[props.itemValue]) || []);
@@ -241,7 +234,6 @@ export default defineComponent({
 			groupIndeterminateState,
 			visibleChildrenValues,
 			groupShown,
-			groupOpen,
 		};
 
 		function emitAll(rawValue: (string | number)[], { added, removed }: Delta) {
